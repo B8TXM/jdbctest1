@@ -4,8 +4,7 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
@@ -42,14 +41,21 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)";
-        try (Connection con = Util.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, lastName);
-            ps.setByte(3, age);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.printf("User с именем — %s добавлен в базу данных%n", name);
+        try (Connection con = Util.getConnection()) {
+            con.setAutoCommit(false);
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.setString(2, lastName);
+                ps.setByte(3, age);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.printf("User с именем — %s добавлен в базу данных%n", name);
+                }
+                con.commit();
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при сохранении пользователя: " + e.getMessage());
@@ -59,14 +65,21 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void removeUserById(long id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection con = Util.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setLong(1, id);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Пользователь с ID " + id + " удалён.");
-            } else {
-                System.out.println("Пользователь с ID " + id + " не найден.");
+        try (Connection con = Util.getConnection()) {
+            con.setAutoCommit(false);
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setLong(1, id);
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Пользователь с ID " + id + " удалён.");
+                } else {
+                    System.out.println("Пользователь с ID " + id + " не найден.");
+                }
+                con.commit();
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
@@ -97,10 +110,17 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         String sql = "DELETE FROM users";
-        try (Connection con = Util.getConnection();
-             Statement statement = con.createStatement()) {
-            int rowsDeleted = statement.executeUpdate(sql);
-            System.out.println("Очищено записей: " + rowsDeleted);
+        try (Connection con = Util.getConnection()) {
+            con.setAutoCommit(false);
+
+            try(Statement statement = con.createStatement()) {
+                int rowsDeleted = statement.executeUpdate(sql);
+                con.commit();
+                System.out.println("Очищено записей: " + rowsDeleted);
+            } catch (SQLException e) {
+                con.rollback();
+                throw e;
+            }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при очистке таблицы: " + e.getMessage());
         }
