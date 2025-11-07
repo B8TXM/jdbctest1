@@ -5,10 +5,10 @@ import java.sql.*;
 
 public class Util {
 
-    public static final String DRIVER = "com.mysql.cj.jdbc.Driver";
-    public static final String URL = "jdbc:mysql://localhost:3306/jdbctest";
-    public static final String USER = "root";
-    public static final String PASSWORD = "root";
+    private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
+    private static final String URL = "jdbc:mysql://localhost:3306/jdbctest";
+    private static final String USER = "root";
+    private static final String PASSWORD = "root";
 
     private Util() {
 
