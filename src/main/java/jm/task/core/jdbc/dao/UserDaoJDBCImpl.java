@@ -55,7 +55,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 con.commit();
             } catch (SQLException e) {
                 con.rollback();
-                throw e;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при сохранении пользователя: " + e.getMessage());
@@ -79,7 +78,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 con.commit();
             } catch (SQLException e) {
                 con.rollback();
-                throw e;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
@@ -119,7 +117,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 System.out.println("Очищено записей: " + rowsDeleted);
             } catch (SQLException e) {
                 con.rollback();
-                throw e;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при очистке таблицы: " + e.getMessage());
