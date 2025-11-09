@@ -41,7 +41,9 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void saveUser(String name, String lastName, byte age) {
         String sql = "INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)";
-        try (Connection con = Util.getConnection()) {
+        Connection con = null;
+        try {
+            con = Util.getConnection();
             con.setAutoCommit(false);
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -58,13 +60,24 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при сохранении пользователя: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     @Override
     public void removeUserById(long id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection con = Util.getConnection()) {
+        Connection con = null;
+        try {
+            con = Util.getConnection();
             con.setAutoCommit(false);
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -81,6 +94,15 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -108,7 +130,9 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         String sql = "DELETE FROM users";
-        try (Connection con = Util.getConnection()) {
+        Connection con = null;
+        try {
+            con = Util.getConnection();
             con.setAutoCommit(false);
 
             try(Statement statement = con.createStatement()) {
@@ -120,6 +144,15 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Ошибка при очистке таблицы: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
